@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Malicious URL Scanner</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container mt-5">
+
+    <div class="d-flex justify-content-between align-items-center">
+        <h3 class="brand">Smart SIEM</h3>
+        <a href="/" class="btn btn-outline-primary">⬅ Back</a>
+    </div>
+
+    <div class="card shadow-lg p-4 mt-4">
+        <h4 class="fw-bold mb-3">Malicious URL Scanner</h4>
+
+        <form method="POST">
+            <div class="input-group">
+                <input type="text" name="url" class="form-control"
+                       placeholder="https://example.com" required>
+                <button class="btn btn-danger">Scan URL</button>
+            </div>
+        </form>
+
+        {% if result %}
+        <div class="alert alert-success mt-4">
+            🔍 Scanning: {{ url }} <br>
+            ✅ URL Status: {{ result }}
+        </div>
+        {% endif %}
+
+    </div>
+
+</div>
+
+</body>
+</html>

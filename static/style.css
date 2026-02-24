@@ -1,0 +1,63 @@
+/* Base */
+body {
+    background-color: #f4f6f9;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    min-height: 100vh;
+    background: white;
+    border-right: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Logo Section */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #0d6efd;
+}
+
+.logo i {
+    font-size: 20px;
+}
+.history {
+    font-size: 16px;
+    font-weight: 600;
+    color: #6c757d;
+    justify-content: center;
+text-align: center;
+    letter-spacing: 1px;
+}
+
+/* Chat Box */
+.chat-box {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    overflow-y: auto;
+}
+
+/* Messages */
+.msg {
+    padding: 10px 15px;
+    border-radius: 10px;
+    max-width: 60%;
+    margin-bottom: 10px;
+}
+
+.msg.bot {
+    background-color: #e9ecef;
+}
+
+/* Input */
+.input-area {
+    margin-top: 15px;
+}
