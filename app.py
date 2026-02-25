@@ -1,23 +1,71 @@
 from flask import Flask, render_template, request, jsonify
 from ollama_service import get_ai_response
+from splunk_service import fetch_failed_logins
+from database import (
+    init_db,
+    create_session,
+    save_message,
+    get_sessions,
+    get_messages
+)
 
 app = Flask(__name__)
+init_db()
+
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
+
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
+
     user_message = data.get("message")
+    session_id = data.get("session_id")
 
     if not user_message:
         return jsonify({"reply": "No message received."})
 
+    # Create new session if needed
+    if not session_id:
+        session_id = create_session("Security Analysis")
+
+    # Save user message
+    save_message(session_id, "user", user_message)
+
+    # AI reply (abhi normal chat)
     reply = get_ai_response(user_message)
 
-    return jsonify({"reply": reply})
+    # Save bot reply
+    save_message(session_id, "bot", reply)
+
+    return jsonify({
+        "reply": reply,
+        "session_id": session_id
+    })
+
+
+# 🔥 Route 1: Get all sessions (for sidebar)
+@app.route("/sessions")
+def sessions():
+    sessions = get_sessions()
+    return jsonify([
+        {"id": s[0], "title": s[1]}
+        for s in sessions
+    ])
+
+
+# 🔥 Route 2: Get messages of a session
+@app.route("/messages/<int:session_id>")
+def messages(session_id):
+    messages = get_messages(session_id)
+    return jsonify([
+        {"role": m[0], "content": m[1]}
+        for m in messages
+    ])
+
 
 if __name__ == "__main__":
     app.run(debug=True)
