@@ -17,6 +17,10 @@ init_db()
 def home():
     return render_template("index.html")
 
+@app.route("/scan")
+def scan_page():
+    return render_template("scan.html")
+
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -81,5 +85,6 @@ def delete_session(session_id):
     conn.close()
 
     return jsonify({"status": "deleted"})
+  
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,41 +1,285 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Malicious URL Scanner</title>
+    <title>Threat Intelligence - Cybot AI</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .scan-wrapper {
+            max-width: 880px;
+            margin: 100px auto;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: -60px;
+            right: 0;
+            font-weight: 600;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .cybot-hero {
+            font-size: 44px;
+            font-weight: 800;
+            color: #2563eb;
+        }
+
+        .hero-subtitle {
+            margin-top: 12px;
+            font-size: 15px;
+            color: #6b7280;
+        }
+
+        .scan-card {
+            margin-top: 50px;
+            background: #ffffff;
+            padding: 50px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            transition: all 0.3s ease;
+        }
+
+        /* Tabs */
+        .scan-tabs {
+            margin-bottom: 40px;
+        }
+
+        .scan-tabs button {
+            background: none;
+            border: none;
+            font-weight: 600;
+            font-size: 15px;
+            margin: 0 25px;
+            color: #6b7280;
+            padding-bottom: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .scan-tabs button.active {
+            color: #2563eb;
+            border-bottom: 3px solid #2563eb;
+        }
+
+        /* URL */
+        .url-section input {
+            height: 50px;
+            border-radius: 12px;
+            border: 2px solid #d1d5db;
+            max-width: 600px;
+            margin: auto;
+            transition: 0.2s;
+        }
+
+        .url-section input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+        }
+
+        .scan-btn {
+            background-color: #2563eb;
+            border: none;
+            color: white;
+            padding: 12px;
+            width: 600px;
+            max-width: 100%;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-top: 18px;
+            transition: 0.2s;
+        }
+
+        .scan-btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* File Upload */
+        .file-upload-box {
+            padding: 50px;
+            border: 2px dashed #d1d5db;
+            border-radius: 18px;
+            background: #f9fafb;
+            transition: 0.3s;
+        }
+
+        .file-upload-box.dragover {
+            border-color: #2563eb;
+            background: #eef2ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #2563eb;
+            margin-bottom: 20px;
+        }
+
+        .choose-file-btn {
+            background: white;
+            border: 2px solid #2563eb;
+            color: #2563eb;
+            padding: 10px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .choose-file-btn:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        .file-name {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        /* Result */
+        .result-box {
+            margin-top: 35px;
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 14px;
+            color: #374151;
+            font-size: 14px;
+            min-height: 60px;
+        }
+
+        .badge-status {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .safe {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .malicious {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .fade-section {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {opacity: 0;}
+            to {opacity: 1;}
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container mt-5">
+<div class="scan-wrapper">
 
-    <div class="d-flex justify-content-between align-items-center">
-        <h3 class="brand">Smart SIEM</h3>
-        <a href="/" class="btn btn-outline-primary">⬅ Back</a>
+    <a href="/" class="back-btn">← Back to Cybot</a>
+
+    <div class="cybot-hero">🛡 CYBOT AI</div>
+
+    <div class="hero-subtitle">
+        Analyse suspicious files, domains and URLs to detect malicious threats.
     </div>
 
-    <div class="card shadow-lg p-4 mt-4">
-        <h4 class="fw-bold mb-3">Malicious URL Scanner</h4>
+    <div class="scan-card">
 
-        <form method="POST">
-            <div class="input-group">
-                <input type="text" name="url" class="form-control"
-                       placeholder="https://example.com" required>
-                <button class="btn btn-danger">Scan URL</button>
-            </div>
-        </form>
-
-        {% if result %}
-        <div class="alert alert-success mt-4">
-            🔍 Scanning: {{ url }} <br>
-            ✅ URL Status: {{ result }}
+        <div class="scan-tabs">
+            <button id="urlTab" class="active">URL Scan</button>
+            <button id="fileTab">File Scan</button>
         </div>
-        {% endif %}
+
+        <!-- URL -->
+        <div id="urlSection" class="fade-section">
+            <div class="url-section">
+                <input type="text" class="form-control" placeholder="https://example.com">
+                <button class="scan-btn">Scan Now</button>
+            </div>
+        </div>
+
+        <!-- FILE -->
+        <div id="fileSection" style="display:none;" class="fade-section">
+            <div class="file-upload-box" id="dropArea">
+                <div class="upload-icon">
+                    <i class="fa-solid fa-file-shield"></i>
+                </div>
+
+                <input type="file" id="fileInput" hidden>
+
+                <button class="choose-file-btn"
+                        onclick="document.getElementById('fileInput').click()">
+                    Choose File
+                </button>
+
+                <div class="file-name" id="fileName"></div>
+            </div>
+        </div>
+
+        <div class="result-box" id="resultBox">
+            No scan performed yet.
+        </div>
 
     </div>
 
 </div>
+
+<script>
+    const urlTab = document.getElementById("urlTab");
+    const fileTab = document.getElementById("fileTab");
+    const urlSection = document.getElementById("urlSection");
+    const fileSection = document.getElementById("fileSection");
+    const fileInput = document.getElementById("fileInput");
+    const fileName = document.getElementById("fileName");
+    const dropArea = document.getElementById("dropArea");
+
+    urlTab.onclick = () => {
+        urlTab.classList.add("active");
+        fileTab.classList.remove("active");
+        urlSection.style.display = "block";
+        fileSection.style.display = "none";
+    };
+
+    fileTab.onclick = () => {
+        fileTab.classList.add("active");
+        urlTab.classList.remove("active");
+        fileSection.style.display = "block";
+        urlSection.style.display = "none";
+    };
+
+    fileInput.onchange = () => {
+        fileName.textContent = fileInput.files[0].name;
+    };
+
+    dropArea.addEventListener("dragover", e => {
+        e.preventDefault();
+        dropArea.classList.add("dragover");
+    });
+
+    dropArea.addEventListener("dragleave", () => {
+        dropArea.classList.remove("dragover");
+    });
+
+    dropArea.addEventListener("drop", e => {
+        e.preventDefault();
+        dropArea.classList.remove("dragover");
+        fileInput.files = e.dataTransfer.files;
+        fileName.textContent = e.dataTransfer.files[0].name;
+    });
+</script>
 
 </body>
 </html>

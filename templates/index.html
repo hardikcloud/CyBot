@@ -39,14 +39,22 @@
     <div class="main">
 
         <!-- Header -->
-        <div class="chat-header">
-            <div>
-                <h4>Cybot AI</h4>
-                <small>AI Powered Security Log Intelligence</small>
-            </div>
+      <div class="chat-header">
+    <div>
+        <h4>Cybot AI</h4>
+        <small>AI Powered Security Log Intelligence</small>
+    </div>
 
-            <span class="badge bg-success">SPLUNK CONNECTED</span>
-        </div>
+    <div class="header-actions">
+        <span class="badge bg-success">SPLUNK CONNECTED</span>
+
+        <button class="threat-btn"
+                onclick="window.location.href='/scan'">
+            <i class="fa-solid fa-shield-virus"></i>
+            Threat Scan
+        </button>
+    </div>
+</div>
 
         <!-- Chat Messages -->
         <div class="chat-box" id="chatBox"></div>
