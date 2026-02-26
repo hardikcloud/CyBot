@@ -28,14 +28,15 @@ def chat():
     if not user_message:
         return jsonify({"reply": "No message received."})
 
-    # Create new session if needed
+    # 🆕 Create new session with auto title
     if not session_id:
-        session_id = create_session("Security Analysis")
+        title = " ".join(user_message.split()[:5]).capitalize()
+        session_id = create_session(title)
 
     # Save user message
     save_message(session_id, "user", user_message)
 
-    # AI reply (abhi normal chat)
+    # AI reply
     reply = get_ai_response(user_message)
 
     # Save bot reply
@@ -47,7 +48,6 @@ def chat():
     })
 
 
-# 🔥 Route 1: Get all sessions (for sidebar)
 @app.route("/sessions")
 def sessions():
     sessions = get_sessions()
@@ -57,7 +57,6 @@ def sessions():
     ])
 
 
-# 🔥 Route 2: Get messages of a session
 @app.route("/messages/<int:session_id>")
 def messages(session_id):
     messages = get_messages(session_id)
@@ -67,5 +66,20 @@ def messages(session_id):
     ])
 
 
+@app.route("/delete_session/<int:session_id>")
+def delete_session(session_id):
+
+    import sqlite3
+
+    conn = sqlite3.connect("cybot.db")
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM messages WHERE session_id=?", (session_id,))
+    cursor.execute("DELETE FROM sessions WHERE id=?", (session_id,))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"status": "deleted"})
 if __name__ == "__main__":
     app.run(debug=True)

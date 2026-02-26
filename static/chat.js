@@ -1,106 +1,178 @@
 let currentSessionId = null;
 
-// Load sessions when page loads
-window.onload = function () {
-    loadSessions();
-};
+const chatBox = document.getElementById("chatBox");
+const userInput = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+const newChatBtn = document.getElementById("newChatBtn");
+const historyList = document.getElementById("historyList");
 
-// Send message
-document.getElementById("sendBtn").addEventListener("click", function () {
+/* ================= SEND MESSAGE ================= */
 
-    const userInput = document.getElementById("userInput");
-    const chatBox = document.getElementById("chatBox");
+function sendMessage() {
 
-    const userMessage = userInput.value.trim();
-    if (!userMessage) return;
+    const message = userInput.value.trim();
+    if (!message) return;
 
-    // Show user message
-    chatBox.innerHTML += `
-        <div class="msg user">
-            ${userMessage}
-        </div>
-    `;
-
+    chatBox.innerHTML += `<div class="msg user">${message}</div>`;
     userInput.value = "";
+
+    chatBox.innerHTML += `<div class="msg bot typing" id="typing">Cybot is analyzing...</div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
 
     fetch("/chat", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            message: userMessage,
+            message: message,
             session_id: currentSessionId
         })
     })
     .then(res => res.json())
     .then(data => {
 
-        // Save session id after first message
+        document.getElementById("typing")?.remove();
+
         if (!currentSessionId) {
             currentSessionId = data.session_id;
-            loadSessions(); // refresh sidebar
         }
 
-        chatBox.innerHTML += `
-            <div class="msg bot">
-                ${data.reply}
-            </div>
-        `;
-
+        chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
-    })
-    .catch(err => console.error(err));
+
+        loadSessions();
+    });
+}
+
+sendBtn.addEventListener("click", sendMessage);
+
+userInput.addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
 });
 
+/* ================= NEW CHAT ================= */
 
-// New Chat button
-document.querySelector(".btn-primary").addEventListener("click", function () {
+newChatBtn.addEventListener("click", function() {
     currentSessionId = null;
-    document.getElementById("chatBox").innerHTML = "";
+    chatBox.innerHTML = "";
+    loadSessions();
 });
 
+/* ================= LOAD SESSIONS ================= */
 
-// Load all sessions (sidebar)
 function loadSessions() {
+
     fetch("/sessions")
     .then(res => res.json())
     .then(data => {
 
-        const historyDiv = document.querySelector(".history");
-        historyDiv.innerHTML = "<span>History</span>";
+        historyList.innerHTML = "";
 
         data.forEach(session => {
-            historyDiv.innerHTML += `
-                <div class="session-item" onclick="loadChat(${session.id})">
-                    Chat ${session.id}
-                </div>
-            `;
+
+            const item = document.createElement("div");
+            item.className = "session-item";
+            if (session.id === currentSessionId) {
+                item.classList.add("active");
+            }
+
+            const title = document.createElement("span");
+            title.textContent = session.title;
+            title.onclick = () => loadChat(session.id);
+
+            const dots = document.createElement("span");
+            dots.className = "menu-dots";
+            dots.innerHTML = `<i class="fa-solid fa-ellipsis-vertical"></i>`;
+            dots.onclick = (e) => {
+                e.stopPropagation();
+                toggleMenu(session.id);
+            };
+
+            const menu = document.createElement("div");
+            menu.className = "session-menu";
+            menu.id = `menu-${session.id}`;
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "Delete";
+            deleteBtn.onclick = () => deleteSession(session.id);
+
+            const cancelBtn = document.createElement("button");
+            cancelBtn.textContent = "Cancel";
+            cancelBtn.onclick = () => closeMenu(session.id);
+
+            menu.appendChild(deleteBtn);
+            menu.appendChild(cancelBtn);
+
+            item.appendChild(title);
+            item.appendChild(dots);
+            item.appendChild(menu);
+
+            historyList.appendChild(item);
         });
     });
 }
 
+/* ================= LOAD CHAT ================= */
 
-// Load specific session messages
 function loadChat(sessionId) {
+
+    currentSessionId = sessionId;
 
     fetch(`/messages/${sessionId}`)
     .then(res => res.json())
     .then(data => {
 
-        currentSessionId = sessionId;
-
-        const chatBox = document.getElementById("chatBox");
         chatBox.innerHTML = "";
 
         data.forEach(msg => {
             chatBox.innerHTML += `
                 <div class="msg ${msg.role}">
                     ${msg.content}
-                </div>
-            `;
+                </div>`;
         });
 
         chatBox.scrollTop = chatBox.scrollHeight;
+        loadSessions();
     });
 }
+
+/* ================= MENU LOGIC ================= */
+
+function toggleMenu(sessionId) {
+    closeAllMenus();
+    const menu = document.getElementById(`menu-${sessionId}`);
+    if (menu) menu.style.display = "block";
+}
+
+function closeMenu(sessionId) {
+    const menu = document.getElementById(`menu-${sessionId}`);
+    if (menu) menu.style.display = "none";
+}
+
+function closeAllMenus() {
+    document.querySelectorAll(".session-menu").forEach(menu => {
+        menu.style.display = "none";
+    });
+}
+
+document.addEventListener("click", closeAllMenus);
+
+/* ================= DELETE SESSION ================= */
+
+function deleteSession(sessionId) {
+
+    fetch(`/delete_session/${sessionId}`)
+    .then(res => res.json())
+    .then(data => {
+
+        if (currentSessionId === sessionId) {
+            currentSessionId = null;
+            chatBox.innerHTML = "";
+        }
+
+        loadSessions();
+    });
+}
+
+/* ================= INIT ================= */
+
+window.onload = loadSessions;
