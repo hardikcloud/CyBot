@@ -16,8 +16,8 @@ User: {message}
         "prompt": prompt,
         "stream": False,
         "options": {
-            "num_predict": 200,
-            "temperature": 0.3
+            "num_predict": 120,
+            "temperature": 0.2
         }
     }
 
