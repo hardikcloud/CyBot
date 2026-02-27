@@ -36,7 +36,7 @@ function sendMessage() {
             currentSessionId = data.session_id;
         }
 
-        chatBox.innerHTML += `<div class="msg bot">${data.reply}</div>`;
+        chatBox.innerHTML += `<div class="msg bot">${data.reply.replace(/\n/g, "<br>")}</div>`;
         chatBox.scrollTop = chatBox.scrollHeight;
 
         loadSessions();
@@ -126,7 +126,7 @@ function loadChat(sessionId) {
         data.forEach(msg => {
             chatBox.innerHTML += `
                 <div class="msg ${msg.role}">
-                    ${msg.content}
+                    ${msg.content.replace(/\n/g, "<br>")}
                 </div>`;
         });
 
