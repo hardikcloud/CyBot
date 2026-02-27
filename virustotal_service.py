@@ -1,16 +1,17 @@
 import requests
 import time
 import base64
-
-API_KEY = "PASTE_NEW_KEY_HERE"
+import os
 
 BASE_URL = "https://www.virustotal.com/api/v3"
+
+API_KEY = os.getenv("VT_API_KEY")
 
 
 def scan_url_virustotal(url):
 
     headers = {
-        "x-apikey": '99b887c2e678f549c8ce46dfb3a393b1be3497819e48d30979849685f3e83509'
+        "x-apikey": API_KEY
     }
 
     url_bytes = url.encode()
