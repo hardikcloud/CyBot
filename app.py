@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from ollama_service import get_ai_response
+from virustotal_service import scan_url_virustotal
 from splunk_service import fetch_failed_logins
 from database import (
     init_db,
@@ -20,6 +21,18 @@ def home():
 @app.route("/scan")
 def scan_page():
     return render_template("scan.html")
+
+@app.route("/scan_url", methods=["POST"])
+def scan_url():
+    data = request.get_json()
+    url = data.get("url")
+
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+
+    result = scan_url_virustotal(url)
+
+    return jsonify(result)
 
 
 @app.route("/chat", methods=["POST"])
@@ -85,6 +98,7 @@ def delete_session(session_id):
     conn.close()
 
     return jsonify({"status": "deleted"})
+    
   
 if __name__ == "__main__":
     app.run(debug=True)

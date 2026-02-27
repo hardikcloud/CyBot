@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Threat Intelligence - Cybot AI</title>
 
@@ -45,7 +46,7 @@
             background: #ffffff;
             padding: 50px;
             border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
             transition: all 0.3s ease;
         }
 
@@ -83,7 +84,7 @@
 
         .url-section input:focus {
             border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
         }
 
         .scan-btn {
@@ -178,108 +179,172 @@
         }
 
         @keyframes fadeIn {
-            from {opacity: 0;}
-            to {opacity: 1;}
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<div class="scan-wrapper">
+    <div class="scan-wrapper">
 
-    <a href="/" class="back-btn">← Back to Cybot</a>
+        <a href="/" class="back-btn">← Back to Chat</a>
 
-    <div class="cybot-hero">🛡 CYBOT AI</div>
+        <div class="cybot-hero">🛡 CYBOT AI</div>
 
-    <div class="hero-subtitle">
-        Analyse suspicious files, domains and URLs to detect malicious threats.
-    </div>
-
-    <div class="scan-card">
-
-        <div class="scan-tabs">
-            <button id="urlTab" class="active">URL Scan</button>
-            <button id="fileTab">File Scan</button>
+        <div class="hero-subtitle">
+            Analyse suspicious files, domains and URLs to detect malicious threats.
         </div>
 
-        <!-- URL -->
-        <div id="urlSection" class="fade-section">
-            <div class="url-section">
-                <input type="text" class="form-control" placeholder="https://example.com">
-                <button class="scan-btn">Scan Now</button>
+        <div class="scan-card">
+
+            <div class="scan-tabs">
+                <button id="urlTab" class="active">URL Scan</button>
+                <button id="fileTab">File Scan</button>
             </div>
-        </div>
 
-        <!-- FILE -->
-        <div id="fileSection" style="display:none;" class="fade-section">
-            <div class="file-upload-box" id="dropArea">
-                <div class="upload-icon">
-                    <i class="fa-solid fa-file-shield"></i>
+            <!-- URL -->
+            <div id="urlSection" class="fade-section">
+                <div class="url-section">
+                    <input type="text" class="form-control" placeholder="https://example.com">
+                    <button class="scan-btn">Scan Now</button>
                 </div>
-
-                <input type="file" id="fileInput" hidden>
-
-                <button class="choose-file-btn"
-                        onclick="document.getElementById('fileInput').click()">
-                    Choose File
-                </button>
-
-                <div class="file-name" id="fileName"></div>
             </div>
-        </div>
 
-        <div class="result-box" id="resultBox">
-            No scan performed yet.
+            <!-- FILE -->
+            <div id="fileSection" style="display:none;" class="fade-section">
+                <div class="file-upload-box" id="dropArea">
+                    <div class="upload-icon">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+
+                    <input type="file" id="fileInput" hidden>
+
+                    <button class="choose-file-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose File
+                    </button>
+
+                    <div class="file-name" id="fileName"></div>
+                </div>
+            </div>
+
+            <div class="result-box" id="resultBox">
+                No scan performed yet.
+            </div>
+
         </div>
 
     </div>
 
-</div>
+    <script>
+        const urlTab = document.getElementById("urlTab");
+        const fileTab = document.getElementById("fileTab");
+        const urlSection = document.getElementById("urlSection");
+        const fileSection = document.getElementById("fileSection");
+        const fileInput = document.getElementById("fileInput");
+        const fileName = document.getElementById("fileName");
+        const dropArea = document.getElementById("dropArea");
 
-<script>
-    const urlTab = document.getElementById("urlTab");
-    const fileTab = document.getElementById("fileTab");
-    const urlSection = document.getElementById("urlSection");
-    const fileSection = document.getElementById("fileSection");
-    const fileInput = document.getElementById("fileInput");
-    const fileName = document.getElementById("fileName");
-    const dropArea = document.getElementById("dropArea");
+        urlTab.onclick = () => {
+            urlTab.classList.add("active");
+            fileTab.classList.remove("active");
+            urlSection.style.display = "block";
+            fileSection.style.display = "none";
+        };
 
-    urlTab.onclick = () => {
-        urlTab.classList.add("active");
-        fileTab.classList.remove("active");
-        urlSection.style.display = "block";
-        fileSection.style.display = "none";
-    };
+        fileTab.onclick = () => {
+            fileTab.classList.add("active");
+            urlTab.classList.remove("active");
+            fileSection.style.display = "block";
+            urlSection.style.display = "none";
+        };
 
-    fileTab.onclick = () => {
-        fileTab.classList.add("active");
-        urlTab.classList.remove("active");
-        fileSection.style.display = "block";
-        urlSection.style.display = "none";
-    };
+        fileInput.onchange = () => {
+            fileName.textContent = fileInput.files[0].name;
+        };
 
-    fileInput.onchange = () => {
-        fileName.textContent = fileInput.files[0].name;
-    };
+        dropArea.addEventListener("dragover", e => {
+            e.preventDefault();
+            dropArea.classList.add("dragover");
+        });
 
-    dropArea.addEventListener("dragover", e => {
-        e.preventDefault();
-        dropArea.classList.add("dragover");
-    });
+        dropArea.addEventListener("dragleave", () => {
+            dropArea.classList.remove("dragover");
+        });
 
-    dropArea.addEventListener("dragleave", () => {
-        dropArea.classList.remove("dragover");
-    });
+        dropArea.addEventListener("drop", e => {
+            e.preventDefault();
+            dropArea.classList.remove("dragover");
+            fileInput.files = e.dataTransfer.files;
+            fileName.textContent = e.dataTransfer.files[0].name;
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
 
-    dropArea.addEventListener("drop", e => {
-        e.preventDefault();
-        dropArea.classList.remove("dragover");
-        fileInput.files = e.dataTransfer.files;
-        fileName.textContent = e.dataTransfer.files[0].name;
-    });
-</script>
+            const scanBtn = document.querySelector(".scan-btn");
+            const urlInput = document.querySelector(".url-section input");
+            const resultBox = document.getElementById("resultBox");
 
+            scanBtn.addEventListener("click", function () {
+
+                const url = urlInput.value.trim();
+
+                if (!url) {
+                    alert("Please enter a URL");
+                    return;
+                }
+
+                resultBox.innerHTML = "Scanning...";
+
+                fetch("/scan_url", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ url: url })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+
+                        if (data.error) {
+                            resultBox.innerHTML = data.error;
+                            return;
+                        }
+
+                        let badgeClass = "safe";
+
+                        if (data.status === "malicious") {
+                            badgeClass = "malicious";
+                        } else if (data.status === "suspicious") {
+                            badgeClass = "malicious";
+                        }
+
+                        resultBox.innerHTML = `
+                <span class="badge-status ${badgeClass}">
+                    ${data.status.toUpperCase()}
+                </span>
+                <br><br>
+                Malicious: ${data.malicious}<br>
+                Suspicious: ${data.suspicious}<br>
+                Harmless: ${data.harmless}
+            `;
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        resultBox.innerHTML = "Error connecting to server.";
+                    });
+
+            });
+
+        });
+    </script>
 </body>
+
 </html>
