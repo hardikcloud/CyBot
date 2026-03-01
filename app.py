@@ -41,31 +41,41 @@ def scan_url():
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
-
     user_message = data.get("message")
     session_id = data.get("session_id")
 
     if not user_message:
         return jsonify({"reply": "No message received."})
 
-    # Create new session
+    # Create session if not exists
     if not session_id:
-        title = " ".join(user_message.split()[:5]).capitalize()
-        session_id = create_session(title)
+        session_id = create_session(user_message[:30])
 
+    # Save user message
     save_message(session_id, "user", user_message)
 
     user_lower = user_message.lower()
 
-    # ===============================
-    # AUTH.LOG SECURITY MONITORING
-    # ===============================
+    # Time detection
+    if "yesterday" in user_lower:
+        time_range = "yesterday"
+    elif "today" in user_lower:
+        time_range = "24h"
+    elif "7" in user_lower or "week" in user_lower:
+        time_range = "7d"
+    elif "30" in user_lower or "month" in user_lower:
+        time_range = "30d"
+    else:
+        time_range = "24h"
+
+    # Security query trigger
     if "attack" in user_lower or "ssh" in user_lower or "log" in user_lower:
 
-        logs = fetch_auth_logs()
+        logs = fetch_auth_logs(time_range)
 
-        if not logs or isinstance(logs, dict):
-            reply = "No authentication activity found or Splunk error occurred."
+        if not logs or isinstance(logs, dict) or len(logs) == 0:
+            reply = "No logs found for the selected time range."
+
         else:
             failed_count = 0
             success_count = 0
@@ -75,65 +85,60 @@ def chat():
 
             for line in logs:
 
-                # Failed SSH
                 if "Failed password" in line:
                     failed_count += 1
 
-                    user_invalid = re.search(r"invalid user (\w+)", line)
-                    user_normal = re.search(r"Failed password for (\w+)", line)
+                    invalid_user = re.search(r"invalid user (\w+)", line)
+                    normal_user = re.search(r"Failed password for (\w+)", line)
 
-                    if user_invalid:
-                        usernames.add(user_invalid.group(1))
-                    if user_normal:
-                        usernames.add(user_normal.group(1))
+                    if invalid_user:
+                        usernames.add(invalid_user.group(1))
+                    if normal_user:
+                        usernames.add(normal_user.group(1))
 
-                # Successful SSH
                 if "Accepted password" in line:
                     success_count += 1
-                    user_success = re.search(r"Accepted password for (\w+)", line)
-                    if user_success:
-                        usernames.add(user_success.group(1))
+                    success_user = re.search(r"Accepted password for (\w+)", line)
+                    if success_user:
+                        usernames.add(success_user.group(1))
 
-                # Sudo usage
                 if "sudo:" in line:
                     sudo_count += 1
                     sudo_user = re.search(r"sudo:\s+(\w+)", line)
                     if sudo_user:
                         usernames.add(sudo_user.group(1))
 
-                # Extract IP
                 ip_match = re.search(r"from (\d+\.\d+\.\d+\.\d+)", line)
                 if ip_match:
                     ips.add(ip_match.group(1))
 
             username_list = ", ".join(usernames) if usernames else "None"
             ip_list = ", ".join(ips) if ips else "None"
+            brute_force = "Yes" if failed_count >= 5 else "No"
 
-            brute_force = "Yes" if failed_count > 5 else "No"
+            # Attack Type Detection
+            if failed_count >= 5:
+                attack_type = "SSH Brute Force Attack"
+            elif len(usernames) >= 3 and failed_count >= 3:
+                attack_type = "Username Enumeration Attempt"
+            elif "root" in usernames and success_count > 0:
+                attack_type = "Suspicious Root Login"
+            else:
+                attack_type = "No Major Attack Detected"
 
-            ai_prompt = f"""
-You are a cybersecurity assistant.
-
-Respond ONLY in clean bullet points.
-No paragraphs.
-
-🔐 Security Summary
-
+            reply = f"""• Attack Type: {attack_type}
 • Failed SSH Attempts: {failed_count}
 • Successful SSH Logins: {success_count}
 • Sudo Activity Count: {sudo_count}
 • Suspicious IPs: {ip_list}
 • Targeted Usernames: {username_list}
 • Brute-force Detected: {brute_force}
-• Recommendation: Monitor suspicious IPs and secure SSH access.
-"""
-
-            reply = get_ai_response(ai_prompt)
+• Time Range: {time_range}"""
 
     else:
-        # Normal AI Chat
         reply = get_ai_response(user_message)
 
+    # Save bot message
     save_message(session_id, "bot", reply)
 
     return jsonify({

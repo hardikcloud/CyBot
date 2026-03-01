@@ -26,8 +26,8 @@ def run_splunk_search(search_query):
 
     sid = job.json().get("sid")
 
-    # Wait for job completion
-    for _ in range(10):
+    # Wait until job completes
+    for _ in range(15):
         status = requests.get(
             f"{SPLUNK_URL}/services/search/jobs/{sid}",
             auth=(USERNAME, PASSWORD),
@@ -41,7 +41,7 @@ def run_splunk_search(search_query):
         if status.json()['entry'][0]['content']['isDone']:
             break
 
-        time.sleep(2)
+        time.sleep(1)
 
     results = requests.get(
         f"{SPLUNK_URL}/services/search/jobs/{sid}/results",
@@ -59,11 +59,31 @@ def run_splunk_search(search_query):
     return logs
 
 
-def fetch_auth_logs():
-    search_query = '''
-    search source="/var/log/auth.log"
+def fetch_auth_logs(time_range="24h"):
+
+    # 🔥 Proper Time Filters
+    if time_range == "24h":
+        # Today from midnight
+        time_filter = "earliest=@d"
+
+    elif time_range == "yesterday":
+        time_filter = "earliest=-1d@d latest=@d"
+
+    elif time_range == "7d":
+        time_filter = "earliest=-7d"
+
+    elif time_range == "30d":
+        time_filter = "earliest=-30d"
+
+    else:
+        # Safe fallback
+        time_filter = "earliest=@d"
+
+    search_query = f"""
+    search {time_filter} source="/var/log/auth.log"
     ("Failed password" OR "Accepted password" OR "sudo:")
-    | head 200
-    '''
+    | sort -_time
+    | head 500
+    """
 
     return run_splunk_search(search_query)
