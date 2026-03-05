@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, jsonify
 from ollama_service import get_ai_response
 from virustotal_service import scan_url_virustotal
 from splunk_service import fetch_auth_logs
+from dotenv import load_dotenv
+load_dotenv()
 from database import (
     init_db,
     create_session,
