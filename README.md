@@ -137,16 +137,21 @@ This setup simulates a **mini Security Operations Center (SOC) environment.**
 The following attacks were simulated for testing:
 
 SSH Brute Force Attack
+
 Example command used from attacker machine:
+
 hydra -l root -P passwords.txt ssh://192.168.1.12
 
 Port Scanning
+
 nmap -sS 192.168.1.12
 
 Username Enumeration
+
 Multiple login attempts using invalid usernames.
 
 All events were logged in:
+
 /var/log/auth.log
 
 Splunk indexed these logs and CYBOT analyzed them.
@@ -180,6 +185,8 @@ VMware Workstation
 ---
 
 # Project Structure
+
+```
 cybot
 │
 ├── app.py
@@ -205,24 +212,31 @@ cybot
 # Installing Splunk on Ubuntu Server
 
 Update system
+
 sudo apt update
 
 Download Splunk Enterprise
+
 wget -O splunk.tgz https://download.splunk.com/products/splunk/releases/9.2.0/linux/splunk-9.2.0-linux-2e4d5c5b9c6f-x86_64.tgz
 
 Extract package
+
 tar -xvzf splunk.tgz
 
 Move to /opt
+
 sudo mv splunk /opt/
 
 Start Splunk
+
 sudo /opt/splunk/bin/splunk start --accept-license
 
 Enable Splunk at boot
+
 sudo /opt/splunk/bin/splunk enable boot-start
 
 Access Splunk dashboard
+
 http://ubuntu-server-ip:8000
 
 ---
@@ -232,26 +246,33 @@ http://ubuntu-server-ip:8000
 Ollama is used to run a **local AI model for security analysis.**
 
 Install Ollama
+
 curl -fsSL https://ollama.com/install.sh | sh
 
 Verify installation
+
 ollama --version
 
 ---
 
 # Download AI Model
+
 Recommended models
 
 Fast model
+
 ollama pull phi3
 
 Balanced model
+
 ollama pull mistral
 
 Advanced model
+
 ollama pull qwen2.5:7b
 
 Run model
+
 ollama run phi3
 
 ---
@@ -268,26 +289,38 @@ SPLUNK_USER=admin
 SPLUNK_PASS=your_password
 
 OLLAMA_MODEL=phi3
+```
+
 ---
 
 # Running the Application
+
 Start the Flask server
+
 python app.py
+
 Open in browser
+
 http://127.0.0.1:5000
 
 ---
 
 # Example Queries
+
 show today logs
+
 show last 7 days logs
+
 show last 30 days attack summary
+
 scan malicious url
+
 The AI assistant retrieves logs from Splunk and generates summaries.
 
 ---
 
 # Future Improvements
+
 Real-time attack detection
 SOC alert generation
 Integration with additional threat intelligence APIs
@@ -298,7 +331,9 @@ Automated incident reports
 ---
 
 # Educational Purpose
+
 This project demonstrates:
+
 SOC automation
 SIEM log analysis
 AI-assisted cybersecurity investigation
@@ -307,5 +342,7 @@ Threat intelligence integration
 ---
 
 # Author
-Hardik
-GitHub: https://github.com/yourusername
+
+Hardik 
+
+GitHub: https://github.com/harikcloud/CyBot
