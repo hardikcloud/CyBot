@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 from ollama_service import get_ai_response
-from virustotal_service import scan_url_virustotal
+from virustotal_service import scan_url_virustotal , scan_file_virustotal
 from splunk_service import fetch_auth_logs
 from dotenv import load_dotenv
 load_dotenv()
@@ -40,6 +40,18 @@ def scan_url():
     return jsonify(result)
 
 
+@app.route("/scan_file", methods=["POST"])
+def scan_file():
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided"})
+
+    file = request.files["file"]
+
+    result = scan_file_virustotal(file)
+
+    return jsonify(result)
+    
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()

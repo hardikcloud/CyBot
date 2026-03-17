@@ -63,7 +63,7 @@ def scan_file_virustotal(file):
 
     headers = {"x-apikey": API_KEY}
 
-    files = {"file": (file.filename, file.read())}
+    files = {"file": (file.filename, file.stream)}
 
     try:
         # Upload file
