@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Threat Intelligence - Cybot AI</title>
 
@@ -45,7 +46,7 @@
             background: #ffffff;
             padding: 50px;
             border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
         }
 
         .scan-tabs {
@@ -134,55 +135,57 @@
 
 <body>
 
-<div class="scan-wrapper">
+    <div class="scan-wrapper">
 
-    <a href="/" class="back-btn">← Back to Chat</a>
+        <a href="/" class="back-btn">← Back to Chat</a>
 
-    <div class="cybot-hero">🛡 CYBOT AI</div>
-    <div class="hero-subtitle">
-        Analyse suspicious files, domains and URLs to detect malicious threats.
-    </div>
-
-    <div class="scan-card">
-
-        <div class="scan-tabs">
-            <button id="urlTab" class="active">URL Scan</button>
-            <button id="fileTab">File Scan</button>
+        <div class="cybot-hero">🛡 CYBOT AI</div>
+        <div class="hero-subtitle">
+            Analyse suspicious files, domains and URLs to detect malicious threats.
         </div>
 
-        <!-- URL SECTION -->
-        <div id="urlSection">
-            <input type="text" id="urlInput" class="form-control" placeholder="https://example.com">
-            <button class="scan-btn" id="urlScanBtn">Scan Now</button>
+        <div class="scan-card">
 
-            <div class="result-box" id="urlResult">
-                No URL scan performed yet.
+            <div class="scan-tabs">
+                <button id="urlTab" class="active">URL Scan</button>
+                <button id="fileTab">File Scan</button>
             </div>
-        </div>
 
-        <!-- FILE SECTION -->
-        <div id="fileSection" style="display:none;">
-            <div class="file-upload-box">
-                <div class="upload-icon">
-                    <i class="fa-solid fa-file-shield"></i>
-                </div>
+            <!-- URL SECTION -->
+            <div id="urlSection">
+                <input type="text" id="urlInput" class="form-control" placeholder="https://example.com">
+                <button class="scan-btn" id="urlScanBtn">Scan Now</button>
 
-                <input type="file" id="fileInput" hidden>
-                <button class="choose-file-btn" id="chooseFileBtn">
-                    Choose File
-                </button>
-
-                <div class="result-box" id="fileResult">
-                    No file scan performed yet.
+                <div class="result-box" id="urlResult">
+                    No URL scan performed yet.
                 </div>
             </div>
+
+            <!-- FILE SECTION -->
+            <div id="fileSection" style="display:none;">
+                <div class="file-upload-box">
+                    <div class="upload-icon">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+
+                    <input type="file" id="fileInput" hidden>
+                    <button class="choose-file-btn" id="chooseFileBtn">
+                        Choose File
+                    </button>
+                    <div id="fileName" style="margin-top:10px; font-size:14px; color:#374151;">
+                        No file selected
+                    </div>
+                    <div class="result-box" id="fileResult">
+                        No file scan performed yet.
+                    </div>
+                </div>
+            </div>
+
         </div>
-
     </div>
-</div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
+    <script>
+document.addEventListener("DOMContentLoaded", function () {
 
     const urlTab = document.getElementById("urlTab");
     const fileTab = document.getElementById("fileTab");
@@ -196,6 +199,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const fileInput = document.getElementById("fileInput");
     const chooseFileBtn = document.getElementById("chooseFileBtn");
     const fileResult = document.getElementById("fileResult");
+    const fileNameDisplay = document.getElementById("fileName");
 
     // TAB SWITCH
     urlTab.onclick = () => {
@@ -213,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     // URL SCAN
-    urlScanBtn.addEventListener("click", function() {
+    urlScanBtn.addEventListener("click", function () {
 
         const url = urlInput.value.trim();
         if (!url) {
@@ -244,15 +248,18 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     // FILE BUTTON CLICK
-    chooseFileBtn.addEventListener("click", function() {
+    chooseFileBtn.addEventListener("click", function () {
         fileInput.click();
     });
 
     // FILE SCAN
-    fileInput.addEventListener("change", function() {
+    fileInput.addEventListener("change", function () {
 
         const file = fileInput.files[0];
         if (!file) return;
+
+        // 🔥 FILE NAME SHOW (NEW ADD)
+        fileNameDisplay.innerHTML = "📄 <b>" + file.name + "</b>";
 
         fileResult.innerHTML = "Uploading & scanning file...";
 
@@ -287,13 +294,13 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         container.innerHTML = `
-            <span class="badge-status ${badgeClass}">
-                ${data.status.toUpperCase()}
-            </span>
-            <br><br>
-            Malicious: ${data.malicious}<br>
-            Suspicious: ${data.suspicious}<br>
-            Harmless: ${data.harmless}
+        <span class="badge-status ${badgeClass}">
+            ${data.status.toUpperCase()}
+        </span>
+        <br><br>
+        Malicious: ${data.malicious}<br>
+        Suspicious: ${data.suspicious}<br>
+        Harmless: ${data.harmless}
         `;
     }
 
@@ -301,4 +308,5 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 </body>
+
 </html>
